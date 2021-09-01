@@ -17,7 +17,7 @@ flyteadmin:
     annotations:
       # Needed for gcp workload identity to function
       # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
-      iam.gke.io/gcp-service-account: flyte@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
+      iam.gke.io/gcp-service-account: flyteadmin@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
   resources:
     limits:
       ephemeral-storage: 200Mi
@@ -50,7 +50,7 @@ datacatalog:
     annotations:
       # Needed for gcp workload identity to function
       # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
-      iam.gke.io/gcp-service-account: flyte@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
+      iam.gke.io/gcp-service-account: flyte-datacatalog@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
   resources:
     limits:
       cpu: 500m
@@ -84,7 +84,7 @@ flytepropeller:
     annotations:
       # Needed for gcp workload identity to function
       # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
-      iam.gke.io/gcp-service-account: flyte@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
+      iam.gke.io/gcp-service-account: flytepropeller@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
   resources:
     limits:
       cpu: 1
@@ -190,7 +190,10 @@ storage:
   # -- bucketName defines the storage bucket flyte will use. Required for all types except for sandbox.
   bucketName: "{{ .Values.userSettings.bucketName }}"
   gcs:
+    # -- GCP project ID. Required for storage type gcs.
     projectId: "{{ .Values.userSettings.googleProjectId }}"
+    # -- GCP service account key for GSA with bucket access. Leave empty if you use workload identity.
+    serviceAccountKey: ""
 
 db:
   database:
