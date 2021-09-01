@@ -18,10 +18,6 @@ flyteadmin:
       # Needed for gcp workload identity to function
       # https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity
       iam.gke.io/gcp-service-account: flyte@{{ .Values.userSettings.googleProjectId }}.iam.gserviceaccount.com
-  service:
-    annotations:
-      # Required for the ingress to properly route grpc traffic to grpc port
-      cloud.google.com/app-protocols: '{"grpc":"HTTP2"}'
   resources:
     limits:
       ephemeral-storage: 200Mi
@@ -180,15 +176,6 @@ common:
         # -- If using plain text you can provide the password here
         pass.txt: "{{ .Values.userSettings.dbPassword }}"
 
-
-#
-# COMMON
-#
-
-common:
-  databaseSecret: {}
-  ingress: {}
-
 # -----------------------------------------------------
 # Core dependencies that should be configured for Flyte to work on any platform
 # Specifically 2 - Storage (s3, gcs etc), Production RDBMS - Aurora, CloudSQL etc
@@ -286,18 +273,18 @@ configmap:
   # -- Section that configures how the Task logs are displayed on the UI. This has to be changed based on your actual logging provider.
   # Refer to [structure](https://pkg.go.dev/github.com/lyft/flyteplugins/go/tasks/logs#LogConfig) to understand how to configure various
   # logging engines
-  # TODO how does this work with GCS logging?
   task_logs:
     plugins:
       logs:
         kubernetes-enabled: false
-        # -- One option is to enable cloudwatch logging for EKS, update the region and log group accordingly
-        # You can even disable this
-        cloudwatch-enabled: true
-        # -- region where logs are hosted
-        cloudwatch-region: "{{ .Values.userSettings.accountRegion }}"
-        # -- cloudwatch log-group
-        cloudwatch-log-group: "{{ .Values.userSettings.logGroup }}"
+        # Enable GCP stackdriver integration for log display
+        stackdriver-enabled: true
+        stackdriver-logresourcename: k8s_container
+      k8s-array:
+        logs:
+          config:
+            stackdriver-enabled: true
+            stackdriver-logresourcename: k8s_container
 
 # ----------------------------------------------------------------
 # Optional Modules
